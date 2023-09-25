@@ -1,6 +1,5 @@
-﻿
-//Copyright by Vlad Motyshen 2023
-#define _CRT_SECURE_NO_WARNINGS
+﻿//Copyright by Vlad Motyshen 2023
+
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -11,22 +10,23 @@
 
 #ifdef _WIN32
 #include <Windows.h>
+#define _CRT_SECURE_NO_WARNINGS
 #include <conio.h>
 #endif
 #ifdef _linux
-#include <ncurses.h> //- це бібліотека для розробки текстових інтерфейсів користувача
+#include <ncurses.h> // це бібліотека для розробки текстових інтерфейсів користувача
 #endif
 
-#include "account.h" //Наш головний класс
+#include "include/account.h" //Наш головний класс
 
 bool isUnsignedNumber(const std::string& str);//прототип на перевірку тільки чисел без знаку
 bool isUnsignedNumber(int number);//прототип на перевірку тільки чисел без знаку
 bool date_checker(int day, int month, int year);//прототип для перевірки на введеня дати(вискосність та інше)
 bool is_valid_date(int day, int month, int year, const date& date_create);//прототип для перевірки введеної дати на меншість чи рівність дати створення рахунку
+bool noexit=true; // Умова для меню
 int main()
 {
 	int id = 1;
-	bool noexit=true;
 	int menu;
 	auto now = std::chrono::system_clock::now(); //Отримуємо поточний час
 	auto now_time_t = std::chrono::system_clock::to_time_t(now);
@@ -43,11 +43,7 @@ int main()
 	//accountList.push_back(client1);
 	//accountList.push_back(client2);
 	 
-	#ifdef _WIN32_
-	cout<<"WIN32"<<endl;
-	#elif __linux__
-    cout<<"GAWWWWWwww"<<endl;
-	#endif
+	
 	while(noexit)
 	{
 		cout << "-----------BANK ACCOUTN-----------\n";
