@@ -6,6 +6,5 @@ project(SpendSavvy
 
 )
 include_directories(include)
-include_directories(src)
 add_executable(SpendSavvy SpendSavvy.cpp src/account.cpp src/date.cpp src/transaction.cpp)
 
