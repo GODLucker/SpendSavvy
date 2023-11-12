@@ -8,38 +8,82 @@
 #include <ctime>
 #include <iomanip>
 
-#ifdef _WIN32
+#include "database.h"
+
+
+#ifdef __WIN64__
 #include <Windows.h>
 #define _CRT_SECURE_NO_WARNINGS
 #include <conio.h>
 #endif
-#ifdef _linux
+#ifdef __linux__
 #include <ncurses.h> // це бібліотека для розробки текстових інтерфейсів користувача
 #endif
 
-#include "include/account.h" //Наш головний класс
+//Наш головний класс
+#include "include/account.h" 
 
-bool isUnsignedNumber(const std::string& str);//прототип на перевірку тільки чисел без знаку
-bool isUnsignedNumber(int number);//прототип на перевірку тільки чисел без знаку
-bool date_checker(int day, int month, int year);//прототип для перевірки на введеня дати(вискосність та інше)
-bool is_valid_date(int day, int month, int year, const date& date_create);//прототип для перевірки введеної дати на меншість чи рівність дати створення рахунку
-bool noexit=true; // Умова для меню
+//прототип на перевірку тільки чисел без знаку
+bool isUnsignedNumber(const std::string& str);
+
+//прототип на перевірку тільки чисел без знаку
+bool isUnsignedNumber(int number);
+
+//прототип для перевірки на введеня дати(вискосність та інше)
+bool date_checker(int day, int month, int year);
+
+//прототип для перевірки введеної дати на меншість чи рівність дати створення рахунку
+bool is_valid_date(int day, int month, int year, const date& date_create);
+
+// умова для меню
+bool noexit=true; 
+
+//перевірка введення в меню
+bool isValidInput(int input);
+int getValidInput();
+
+
+
 int main()
 {
-	int id = 1;
-	int menu;
+	Database db("/home/lusker/Desktop/SpendSavvy/database/database.db"); // Ініціалізуємо об'єкт бази даних і вказуємо ім'я бази даних
+
+	int id = db.getLastId(); // отримуємо останній id з бази даних
+
+	int menu = getValidInput(); // перевірка для меню
+
 	auto now = std::chrono::system_clock::now(); //Отримуємо поточний час
 	auto now_time_t = std::chrono::system_clock::to_time_t(now);
 	std::tm tm = *std::localtime(&now_time_t);
-	date date_create(tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900);
+
+	date date_create(tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900); // ініціалізація класу date для уникнення помилок
 	
-	std::vector<account> accountList;
+	std::vector<account> accountList; //вектор аккаунтів
+
+	
+
+	//Перевірка відкриття бази
+    if (!db.open()) {
+        cout << "Failed to open the database.\n";
+        return 1;
+    }
+	
+	//Перевірка на створення табилці, якщо не створенна - створе таблицю
+	if (!db.createTable()) {
+        cout << "Failed to create the table.\n";
+        db.close();
+        return 1;
+    }
+
+	//Синхронізування з базою
+	accountList = db.getAllAccounts();
+	
+
 	//FOR TEST 
 	//date credit_end(1, 4, 2021);
 	//date deposit_end;
 	//account client1(0, "credit account", "UAH", "Monobank", credit, 16, -3000,date_create, credit_end);//test
 	//account client2(2, "deposit account", "UAH", "Monobank", deposit, 16, 6000, date_create,credit_end);//test
-	//
 	//accountList.push_back(client1);
 	//accountList.push_back(client2);
 	 
@@ -49,16 +93,21 @@ int main()
 		cout << "-----------BANK ACCOUTN-----------\n";
 		cout << "0 - Exit\n1 - Create account\n2 - Show avalibale card\n3 - Show info from avalible cards\n";
 		cout << "4 - Save spending\n5 - Save replenishment\n6 - Check expenses and income from period \n";
-		cin >> menu;
+		
+		
+		
 		switch (menu)
 		{
+
 		case 0:
 		{
-			cout << "See you soon!\t\n";
-			noexit=false;
-			break;
+			 cout << "See you soon!\t\n";
+    		db.close(); // Закриваємо базу даних перед виходом
+    		noexit = false;
+    		break;
 			
 		}
+
 		case 1:
 		{
 			int  type_card=0, day=0, month=0, year=0;;
@@ -66,11 +115,13 @@ int main()
 			string bank_currency, bank_name, account_name;
 			date deposit_end;
 			date credit_end;
+
 			cout << "\tYou choose create account!\n";
 			cout << "Enter account name: ";
 			cin >> account_name;
 			cout << "Enter avalible currency UAH,USD,EUR. \n";
 			cin >> bank_currency;
+
 			while(true)
 			{ 
 				if (bank_currency != "UAH" && bank_currency != "USD" && bank_currency != "EUR")
@@ -83,11 +134,13 @@ int main()
 				else
 					break;
 			}
+
 			cout << "Enter name of banking: " << endl;
 			cin >> bank_name;
 			cout << "Enter account card type\n";
 			cout << "(0-Current account,1-card account,2-deposit account,3-credit account,4-other account) : ";
 			cin >> type_card;
+
 			if (type_card == 2 )//сторюємо депозитну картку
 			{
 				cout << "Enter year precent: \n";
@@ -96,15 +149,21 @@ int main()
 				cout << "Enter of date deposit ending.\n";
 				cout << "Enter data: \nDay: ,Month: ,Year: \n";
 				cin >> day >> month >> year;
-				if(is_valid_date(day,month,year, date_create))// перевірка на коректність дати та перевірка кінцевої дати(не може бути менша чи дорівнювати дати створення карти
+
+				if(is_valid_date(day,month,year, date_create))// перевірка на коректність дати та перевірка кінцевої дати(не може бути менша чи дорівнювати даті створення карти
 				{ 
 				deposit_end= date(day, month, year);
 				}
-				else { cout << "\nWrong date! Try again!\n"; break; }
+
+				else { 
+					cout << "\nWrong date! Try again!\n"; break; 
+					}
+
 				cout << "Enter first ammount to deposit on your new account\n";
 				cin >> first_deposit;
 				
 			}
+
 			else if (type_card == 3) //сторюємо кредитну картку
 			{
 				cout << "Enter year precent: \n";
@@ -112,6 +171,7 @@ int main()
 				cout << "Enter of date credit ending: ";
 				cout << "Enter data: \nDay: ,Month: ,Year: \n";
 				cin >> day >> month >> year;
+
 				if (is_valid_date(day, month, year, date_create))// перевірка на коректність дати 
 				{
 					date credit_end(day, month, year);
@@ -121,13 +181,16 @@ int main()
 				cout << "Enter first ammount to deposit on your new account\n";
 				cin >> first_deposit;
 			}
+
 			else
 			{ 
 			cout << "Enter first ammount to deposit on your new account:\n";
 			cin >> first_deposit;
 			}
+
 			while(true)
 			{ 
+
 			if (type_card != 2 && type_card != 3 && first_deposit >= 0)
 			{
 
@@ -148,13 +211,23 @@ int main()
 				break;
 			}
 			else
-				cout << "\n\tOnly credit account could have minus balance!\n";
+			cout << "\n\tOnly credit account could have minus balance!\n";
 			cout << "Enter first ammount to deposit on your new account\n";
 			cin >> first_deposit;
 			}
-			break;
 
+			 account newaccount(id++, account_name, bank_currency, bank_name, cards_type(type_card), year_percent, first_deposit, date_create, deposit_end);
+			 
+			 if (db.insertData(newaccount.get_id(), newaccount.get_name(), newaccount.get_currency(), newaccount.get_bank_name(), newaccount.get_Card(), newaccount.get_remainder()))
+  			{
+        		cout << "Account created and added to the database successfully.\n";
+    		}
+    		else 
+			{
+        	cout << "Failed to add the account to the database.\n";
+   			}
 
+		break;
 		}
 		case 2:
 		{
@@ -380,12 +453,14 @@ int main()
 		default:
 		{
 			cout << "\nUnknown command!\n";
+			db.close(); // Закриваємо базу даних перед завершенням програми
 			break;
 		}
 		}
 
 	}
-	
+	db.close(); // Закриваємо базу даних перед завершенням програми
+
 }
 
 bool is_valid_date(int day, int month, int year, const date& date_create) // Перевіряємо на коректність введену дату
@@ -470,4 +545,25 @@ bool isUnsignedNumber(int number) {
 	std::stringstream ss;
 	ss << number;
 	return isUnsignedNumber(ss.str());
+}
+// Функція для перевірки, чи є введене значення від 0 до 6
+bool isValidInput(int input) {
+    return input >= 0 && input <= 6;
+}
+
+// Функція для отримання від користувача коректного вводу
+int getValidInput() {
+    int input;
+    std::cout << "Введіть число від 0 до 6: ";
+    while (true) {
+        std::cin >> input;
+        
+        if (std::cin.fail() || !isValidInput(input)) {
+            std::cin.clear(); // Очищуємо будь-які помилки вводу
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Ігноруємо неправильний ввід до кінця рядка
+            std::cout << "Неправильний ввід, введіть число від 0 до 6: ";
+        } else {
+            return input;
+        }
+    }
 }

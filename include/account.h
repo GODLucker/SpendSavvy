@@ -9,8 +9,8 @@ using namespace std;
   
 enum cards_type
 {
-	current,// для ведення підприємницької діяльності
-	card, //клієнтам, які здійснюють операції із застосуванням платіжних карток
+	current,// пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+	card, //пїЅлієпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 	deposit,
 	credit,
 	other
@@ -20,15 +20,15 @@ class account
 {
 private:
 	int id; //id
-	string name; //назва рахунку
-	string currency; //валюта
-	string bank_name; //назва банку
-	cards_type type; //тип картки
-	float additional_analytics;//відсоток, який нараховується на залишок
-	double remainder;//залишок
+	string name; //пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+	string currency; //пїЅпїЅпїЅпїЅпїЅпїЅ
+	string bank_name; //пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+	cards_type type; //пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+	float additional_analytics;//пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+	double remainder;//пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	date date_create;
-	date end_date;// має бути прогнозована дата закінчення депозита або кредита.
-	vector<transaction> all_transaction; //усі транзакції за період
+	date end_date;// пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
+	vector<transaction> all_transaction; //пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 
 	
 public:
@@ -38,8 +38,9 @@ public:
 	account(const account&& other)noexcept;
 	account& operator=(const account& other);
 
-	friend ostream& operator<<(ostream& out,const account& name); //перевантаження виводу для об'єкту
+	friend ostream& operator<<(ostream& out,const account& name); //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ'пїЅпїЅпїЅпїЅ
 	std::ostream& print_short(std::ostream& out) const;
+	
 	
 	vector<transaction>&get_tr();
 
